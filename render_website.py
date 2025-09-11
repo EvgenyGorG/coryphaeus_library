@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from environs import Env
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from livereload import Server
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
@@ -13,6 +13,22 @@ def fetch_books_data(path_of_books_data_file):
         books_data = json.load(books_data_file)
 
     return books_data
+
+
+def on_reload(books_data):
+    env = Environment(
+        loader=FileSystemLoader('.'),
+        autoescape=select_autoescape(['html'])
+    )
+
+    template = env.get_template('template.html')
+
+    rendered_page = template.render(
+        books_data=books_data
+    )
+
+    with open('index.html', 'w', encoding="utf-8") as file:
+        file.write(rendered_page)
 
 
 def main():
@@ -41,22 +57,11 @@ def main():
     else:
         raise FileNotFoundError('Файл не найден, проверьте наличие файла по заданному пути.')
 
-    env = Environment(
-        loader=FileSystemLoader('.'),
-        autoescape=select_autoescape(['html', 'xml'])
-    )
+    on_reload(books_data)
 
-    template = env.get_template('template.html')
-
-    rendered_page = template.render(
-        books_data=books_data
-    )
-
-    with open('index.html', 'w', encoding="utf-8") as file:
-        file.write(rendered_page)
-
-    server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-    server.serve_forever()
+    server = Server()
+    server.watch('template.html', lambda: on_reload(books_data))
+    server.serve(root='.')
 
 
 if __name__ == '__main__':
