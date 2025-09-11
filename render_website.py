@@ -5,6 +5,7 @@ from pathlib import Path
 
 from environs import Env
 from livereload import Server
+from more_itertools import chunked
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
@@ -15,7 +16,11 @@ def fetch_books_data(path_of_books_data_file):
     return books_data
 
 
-def on_reload(books_data):
+def chunk_books_data(books_data):
+    return list(chunked(books_data, 2))
+
+
+def on_reload(chunked_books_data):
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html'])
@@ -24,7 +29,7 @@ def on_reload(books_data):
     template = env.get_template('template.html')
 
     rendered_page = template.render(
-        books_data=books_data
+        chunked_books_data=chunked_books_data
     )
 
     with open('index.html', 'w', encoding="utf-8") as file:
@@ -57,10 +62,12 @@ def main():
     else:
         raise FileNotFoundError('Файл не найден, проверьте наличие файла по заданному пути.')
 
-    on_reload(books_data)
+    chunked_books_data = chunk_books_data(books_data)
+
+    on_reload(chunked_books_data)
 
     server = Server()
-    server.watch('template.html', lambda: on_reload(books_data))
+    server.watch('template.html', lambda: on_reload(chunked_books_data))
     server.serve(root='.')
 
 
