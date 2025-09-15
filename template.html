@@ -9,17 +9,35 @@
     <title>Books, books, books!</title>
   </head>
   <body>
-    <nav aria-label="Page navigation">
+    <nav aria-label="Навигация по страницам">
       <ul class="pagination justify-content-center">
-        <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-        </li>
+        {% if current_page == 1 %}
+          <li class="page-item disabled">
+            <a class="page-link" href="#" aria-disabled="true" tabindex="-1">Назад</a>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link" href="../pages/index{{ current_page - 1}}.html">Назад</a>
+          </li>
+        {% endif %}
         {% for page in range(1, number_of_pages + 1) %}
-          <li class="page-item"><a class="page-link" href="../pages/index{{ page }}.html">{{ page }}</a></li>
+          {% if page == current_page %}
+            <li class="page-item active" aria-current="page">
+              <a class="page-link" href="../pages/index{{ page }}.html">{{ page }}</a>
+            </li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="../pages/index{{ page }}.html">{{ page }}</a></li>
+          {% endif %}
         {% endfor %}
-        <li class="page-item">
-          <a class="page-link" href="#">Next</a>
-        </li>
+        {% if current_page == number_of_pages %}
+          <li class="page-item disabled">
+            <a class="page-link" href="#" aria-disabled="true" tabindex="-1">Вперед</a>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link" href="../pages/index{{ current_page + 1}}.html">Вперед</a>
+          </li>
+        {% endif %}
       </ul>
     </nav>
     <div class="container">
