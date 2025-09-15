@@ -35,7 +35,9 @@ def on_reload(chunked_books):
         chunked_books_data = chunk_books_data(books, BOOKS_IN_ROW)
 
         rendered_page = template.render(
-            chunked_books_data=chunked_books_data
+            chunked_books_data=chunked_books_data,
+            number_of_pages=len(chunked_books),
+            current_page=number
         )
 
         Path('pages').mkdir(parents=True, exist_ok=True)
