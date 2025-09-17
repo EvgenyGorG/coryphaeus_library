@@ -12,17 +12,6 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 BOOKS_IN_ROW = 2
 
 
-def fetch_books_data(path_of_books_data_file):
-    with path_of_books_data_file.open('r', encoding='utf-8') as books_data_file:
-        books_data = json.load(books_data_file)
-
-    return books_data
-
-
-def chunk_books_data(books_data, portion):
-    return list(chunked(books_data, portion))
-
-
 def on_reload(chunked_books):
     env = Environment(
         loader=FileSystemLoader('.'),
@@ -32,7 +21,7 @@ def on_reload(chunked_books):
     template = env.get_template('template.html')
 
     for number, books in enumerate(chunked_books, 1):
-        chunked_books_data = chunk_books_data(books, BOOKS_IN_ROW)
+        chunked_books_data = list(chunked(books, BOOKS_IN_ROW))
 
         rendered_page = template.render(
             chunked_books_data=chunked_books_data,
@@ -78,11 +67,12 @@ def main():
     books_in_page = args.books_in_page
 
     if path_of_books_data_file.exists():
-        books_data = fetch_books_data(path_of_books_data_file)
+        with path_of_books_data_file.open('r', encoding='utf-8') as books_data_file:
+            books_data = json.load(books_data_file)
     else:
         raise FileNotFoundError('Файл не найден, проверьте наличие файла по заданному пути.')
 
-    chunked_books = chunk_books_data(books_data, books_in_page)
+    chunked_books = list(chunked(books_data, books_in_page))
 
     on_reload(chunked_books)
 
