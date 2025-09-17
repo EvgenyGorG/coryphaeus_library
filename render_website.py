@@ -42,7 +42,7 @@ def on_reload(chunked_books):
 
         Path('pages').mkdir(parents=True, exist_ok=True)
 
-        with open(f'pages/index{number}.html', 'w', encoding="utf-8") as file:
+        with open(f'pages/index{number}.html', 'w', encoding='utf-8') as file:
             file.write(rendered_page)
 
 
