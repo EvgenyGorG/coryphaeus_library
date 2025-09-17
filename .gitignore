@@ -64,7 +64,6 @@ jinja2_cache/
 instance/
 .webassets-cache
 staticfiles/
-media/
 *.sqlite3
 db.sqlite3
 
